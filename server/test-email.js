@@ -14,7 +14,7 @@ console.log("User:", process.env.EMAIL_USER);
 // console.log("Pass:", process.env.EMAIL_PASS); // Security: don't log pass
 
 transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"Angel CineWorld" <${process.env.EMAIL_USER}>`,
     to: process.env.EMAIL_USER, // Send to self
     subject: 'Test Email',
     text: 'If you see this, email is working!'

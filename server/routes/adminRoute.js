@@ -1,15 +1,14 @@
 const router = require('express').Router();
 const Booking = require('../models/bookingModel');
 const Movie = require('../models/movieModel');
+const OTP = require('../models/otpModel');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
 
-// Temporary in-memory OTP store (in production uses Redis or DB)
-let adminOTP = null;
-
-// Admin Credentials
-const ADMIN_USER = "Mansvi";
-const ADMIN_PASS = "Vishakha";
-const ADMIN_EMAIL = "amreliyaaakash3@gmail.com"; // Email to send OTP to
+// Admin Credentials from Environment Variables
+const ADMIN_USER = process.env.ADMIN_USER || "Aakash";
+const ADMIN_PASS = process.env.ADMIN_PASS || "Devanshi";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "amreliyaaakash3@gmail.com";
 
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
@@ -27,27 +26,68 @@ router.post('/login', async (req, res) => {
     if (username === ADMIN_USER && password === ADMIN_PASS) {
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        adminOTP = otp;
 
         try {
-            transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: ADMIN_EMAIL,
-                subject: 'Admin Panel Login OTP',
-                text: `Hii Manasvi and Hii VIshakha Admin of Angel CineWord
-                
-                Your OTP for Admin Login is: ${otp}
-                Have Nice Day Logout Befot Signof
-                `,
+            // Hash the OTP before saving
+            const hashedOtp = await bcrypt.hash(otp, 10);
 
+            // Save Hashed OTP to Database
+            await OTP.findOneAndUpdate(
+                { email: ADMIN_EMAIL },
+                { otp: hashedOtp },
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
+
+            await transporter.sendMail({
+                from: `"Angel CineWorld Admin" <${process.env.EMAIL_USER}>`,
+                to: ADMIN_EMAIL,
+                subject: "🔐 Admin Panel Login OTP - Angel CineWorld",
+
+                html: `
+    <div style="font-family: Arial, sans-serif; background-color: #f4f6f9; padding: 30px;">
+        <div style="max-width: 500px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+
+            <h2 style="text-align: center; color: #2c3e50;">
+                Angel CineWorld Admin Login
+            </h2>
+
+            <p style="font-size: 16px; color: #333;">
+                Hello Aakash,
+            </p>
+
+            <p style="font-size: 15px; color: #555;">
+                Your One-Time Password (OTP) for accessing the Admin Panel is:
+            </p>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <span style="font-size: 28px; letter-spacing: 5px; font-weight: bold; color: #ffffff; background: #1e88e5; padding: 12px 20px; border-radius: 8px;">
+                    ${otp}
+                </span>
+            </div>
+
+            <p style="font-size: 14px; color: #777;">
+                ⏳ This OTP is valid for 5 minutes. Please do not share it with anyone.
+            </p>
+
+            <hr style="margin: 25px 0;">
+
+            <p style="font-size: 13px; color: #999; text-align: center;">
+                If you did not request this login, please ignore this email.
+            </p>
+
+            <p style="font-size: 13px; color: #999; text-align: center;">
+                © ${new Date().getFullYear()} Angel CineWorld. All rights reserved.
+            </p>
+
+        </div>
+    </div>
+    `
             });
-            console.log(`OTP Sent to ${ADMIN_EMAIL}: ${otp}`); // Log for debugging
+            // Log for debugging
             res.json({ success: true, message: "OTP sent to email" });
         } catch (error) {
-            console.error("Email Error:", error);
-            // Fallback for development: Allow proceeding even if email fails
-            console.log(`fallback OTP: ${otp}`);
-            res.json({ success: true, message: "Email failed. Check Server Console for OTP." });
+            console.error("Login/Email Error:", error);
+            res.status(500).json({ success: false, message: "Error sending OTP" });
         }
     } else {
         res.status(401).json({ success: false, message: "Invalid Credentials" });
@@ -55,14 +95,28 @@ router.post('/login', async (req, res) => {
 });
 
 // 2. Verify OTP (Step 2: Grant Access)
-router.post('/verify-otp', (req, res) => {
+router.post('/verify-otp', async (req, res) => {
     const { otp } = req.body;
-    if (adminOTP && otp === adminOTP) {
-        // Clear OTP after success
-        adminOTP = null;
-        res.json({ success: true, message: "Login Successful" });
-    } else {
-        res.status(401).json({ success: false, message: "Invalid OTP" });
+    try {
+        const otpRecord = await OTP.findOne({ email: ADMIN_EMAIL });
+
+        if (otpRecord) {
+            // Compare the provided OTP with the hashed OTP in the DB
+            const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+
+            if (isMatch) {
+                // Delete OTP after success
+                await OTP.deleteOne({ _id: otpRecord._id });
+                res.json({ success: true, message: "Login Successful" });
+            } else {
+                res.status(401).json({ success: false, message: "Invalid OTP" });
+            }
+        } else {
+            res.status(401).json({ success: false, message: "Invalid OTP or expired" });
+        }
+    } catch (error) {
+        console.error("Verify OTP Error:", error);
+        res.status(500).json({ success: false, message: "Server Error during verification" });
     }
 });
 
@@ -244,34 +298,9 @@ router.delete('/users/:id', async (req, res) => {
     }
 });
 
-// BLOCK User (Ban)
-router.put('/users/:id/block', async (req, res) => {
-    try {
-        const { createClerkClient } = require('@clerk/clerk-sdk-node');
-        const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-        await clerkClient.users.banUser(req.params.id);
-        res.json({ message: "User blocked successfully" });
-    } catch (error) {
-        console.error("Block User Error Full:", JSON.stringify(error, null, 2));
-        const errorMessage = error.errors ? error.errors[0]?.message : error.message;
-        res.status(500).json({ error: `Failed to block user: ${errorMessage}` });
-    }
-});
 
-// UNBLOCK User (Unban)
-router.put('/users/:id/unblock', async (req, res) => {
-    try {
-        const { createClerkClient } = require('@clerk/clerk-sdk-node');
-        const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-        await clerkClient.users.unbanUser(req.params.id);
-        res.json({ message: "User unblocked successfully" });
-    } catch (error) {
-        console.error("Unblock User Error Full:", JSON.stringify(error, null, 2));
-        const errorMessage = error.errors ? error.errors[0]?.message : error.message;
-        res.status(500).json({ error: `Failed to unblock user: ${errorMessage}` });
-    }
-});
+
 
 module.exports = router;

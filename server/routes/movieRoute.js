@@ -6,11 +6,13 @@ const Booking = require('../models/bookingModel');
 // GET all movies
 router.get('/', async (req, res) => {
     try {
+        console.log("Found request for /, querying DB...");
         const movies = await Movie.find();
+        console.log(`Found ${movies.length} movies in route. Sending response...`);
         res.json(movies);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server Error" });
+        console.error("Error in GET /api/movies:", error);
+        res.status(500).json({ error: "Server Error", details: error.message });
     }
 });
 

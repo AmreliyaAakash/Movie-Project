@@ -86,7 +86,7 @@ const sendTicketEmail = async (toEmail, bookingDetails) => {
         const pdfBuffer = await generateTicketPDF(bookingDetails, qrCodeDataURL);
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"Angel CineWorld" <${process.env.EMAIL_USER}>`,
             to: toEmail,
             subject: `Your Ticket for ${movieName} - Movie-Booking`,
             html: `
@@ -135,7 +135,7 @@ const sendCancellationEmail = async (toEmail, bookingDetails) => {
         const { movieName, showDate, showTime, seats, amount, refundAmount, reason, user } = bookingDetails;
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"Angel CineWorld" <${process.env.EMAIL_USER}>`,
             to: toEmail,
             subject: `Booking Cancelled - ${movieName}`,
             html: `

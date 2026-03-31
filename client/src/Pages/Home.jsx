@@ -51,7 +51,7 @@ const Home = () => {
 
     const ctx = gsap.context(() => {
       // Hero Content Animation
-      if (heroContentRef.current) {
+      if (heroContentRef.current && heroContentRef.current.children.length > 0) {
         gsap.fromTo(heroContentRef.current.children,
           { y: 50, opacity: 0 },
           { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power3.out", delay: 0.2 }
@@ -59,7 +59,7 @@ const Home = () => {
       }
 
       // Grid Animation
-      if (moviesGridRef.current) {
+      if (moviesGridRef.current && moviesGridRef.current.children.length > 0) {
         gsap.fromTo(moviesGridRef.current.children,
           { y: 50, opacity: 0 },
           {
