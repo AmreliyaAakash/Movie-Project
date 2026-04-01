@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, X, Star, Calendar, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { getImageUrl } from '../../Lib/utils';
 
 const MoviesTab = () => {
     const [movies, setMovies] = useState([]);
@@ -44,7 +45,7 @@ const MoviesTab = () => {
     // Fetch Movies
     const fetchMovies = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/movies');
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies`);
             const data = await res.json();
             if (res.ok) {
                 setMovies(data);
@@ -84,7 +85,7 @@ const MoviesTab = () => {
         uploadData.append('image', file);
 
         try {
-            const res = await fetch('http://localhost:5000/api/upload', {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/upload`, {
                 method: 'POST',
                 body: uploadData
             });
@@ -92,8 +93,7 @@ const MoviesTab = () => {
 
             if (res.ok) {
                 // Prepend Server URL so frontend (port 5173) can access server (port 5000) image
-                const fullUrl = `http://localhost:5000${data.imageUrl}`;
-                setFormData(prev => ({ ...prev, [field]: fullUrl }));
+                setFormData(prev => ({ ...prev, [field]: data.imageUrl }));
                 toast.success(`${field === 'poster_path' ? 'Poster' : 'Backdrop'} uploaded!`);
             } else {
                 toast.error("Upload failed");
@@ -113,14 +113,13 @@ const MoviesTab = () => {
         uploadData.append('image', file);
 
         try {
-            const res = await fetch('http://localhost:5000/api/upload', {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/upload`, {
                 method: 'POST',
                 body: uploadData
             });
             const data = await res.json();
             if (res.ok) {
-                const fullUrl = `http://localhost:5000${data.imageUrl}`;
-                setNewCast({ ...newCast, profile_path: fullUrl });
+                setNewCast({ ...newCast, profile_path: data.imageUrl });
                 toast.success("Cast image uploaded!");
             }
         } catch (error) {
@@ -164,7 +163,7 @@ const MoviesTab = () => {
                 revenue: Number(formData.revenue) || 0
             };
 
-            const res = await fetch('http://localhost:5000/api/movies', {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -196,7 +195,7 @@ const MoviesTab = () => {
         if (!window.confirm("Are you sure you want to delete this movie? This will remove it from the database.")) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/movies/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies/${id}`, {
                 method: 'DELETE'
             });
 
@@ -341,7 +340,7 @@ const MoviesTab = () => {
                                 <div className="flex flex-wrap gap-3">
                                     {castList.map((cast, index) => (
                                         <div key={index} className="flex items-center gap-2 bg-[#15161c] p-2 rounded border border-gray-600">
-                                            <img src={cast.profile_path} alt={cast.name} className="w-8 h-8 rounded-full object-cover" />
+                                            <img src={getImageUrl(cast.profile_path)} alt={cast.name} className="w-8 h-8 rounded-full object-cover" />
                                             <span className="text-xs text-white">{cast.name}</span>
                                             <button type="button" onClick={() => removeCastMember(index)} className="text-red-500 hover:text-white">
                                                 <X size={14} />
@@ -368,7 +367,7 @@ const MoviesTab = () => {
                         {movies.map(movie => (
                             <div key={movie._id} className="bg-[#15161c] rounded-xl overflow-hidden border border-gray-800 hover:border-gray-700 transition group relative">
                                 <div className="relative h-48">
-                                    <img src={movie.backdrop_path || movie.poster_path} alt={movie.title} className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(movie.backdrop_path || movie.poster_path)} alt={movie.title} className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#15161c] to-transparent"></div>
                                     <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
@@ -399,3 +398,8 @@ const MoviesTab = () => {
 };
 
 export default MoviesTab;
+
+
+
+
+

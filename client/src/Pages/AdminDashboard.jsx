@@ -65,7 +65,7 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/admin/stats');
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/stats`);
             const data = await res.json();
             setStats(data);
         } catch (error) {
@@ -75,7 +75,7 @@ const AdminDashboard = () => {
 
     const fetchBookings = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/admin/bookings');
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/bookings`);
             const data = await res.json();
             setBookings(data);
         } catch (error) {
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
     const handleDeleteBooking = async (id) => {
         if (window.confirm("Are you sure you want to delete this old booking?")) {
             try {
-                const res = await fetch(`http://localhost:5000/api/admin/bookings/${id}`, {
+                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/bookings/${id}`, {
                     method: 'DELETE',
                 });
                 if (res.ok) {
@@ -240,3 +240,8 @@ const AdminDashboard = () => {
 }
 
 export default AdminDashboard
+
+
+
+
+

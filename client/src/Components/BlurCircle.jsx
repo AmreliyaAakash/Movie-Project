@@ -17,3 +17,8 @@ const BlurCircle = ({ top, right, left, bottom }) => {
 }
 
 export default BlurCircle
+
+
+
+
+

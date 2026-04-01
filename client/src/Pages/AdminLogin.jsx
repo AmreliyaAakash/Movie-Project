@@ -17,7 +17,7 @@ const AdminLogin = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/admin/login', {
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/login`, {
                 username: formData.username,
                 password: formData.password
             });
@@ -36,7 +36,7 @@ const AdminLogin = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const verifyRes = await axios.post('http://localhost:5000/api/admin/verify-otp', {
+            const verifyRes = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/verify-otp`, {
                 otp: formData.otp
             });
 
@@ -128,3 +128,8 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
+
+
+
+

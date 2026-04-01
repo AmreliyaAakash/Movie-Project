@@ -19,7 +19,7 @@ const Home = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/movies');
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies`);
         if (res.ok) {
           const data = await res.json();
           setMovies(data);
@@ -157,3 +157,7 @@ const Home = () => {
 };
 
 export default Home;
+
+
+
+

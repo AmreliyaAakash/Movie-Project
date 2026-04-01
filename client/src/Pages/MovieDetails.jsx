@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { dummyShowsData } from '../assets/assets';
-import { formatCurrency, formatDate } from '../Lib/utils';
+import { formatCurrency, formatDate, getImageUrl } from '../Lib/utils';
 import { IoTimeOutline, IoCalendarOutline, IoStar, IoPlayCircleOutline } from "react-icons/io5";
 
 const MovieDetails = () => {
@@ -12,7 +12,7 @@ const MovieDetails = () => {
     const fetchMovie = async () => {
       try {
         // Try fetching from API first
-        const res = await fetch(`http://localhost:5000/api/movies/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies/${id}`);
         if (res.ok) {
           const data = await res.json();
           setMovie(data);
@@ -83,7 +83,7 @@ const MovieDetails = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-transparent z-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/50 to-transparent z-10"></div>
         <img
-          src={movie.backdrop_path}
+          src={getImageUrl(movie.backdrop_path)}
           alt={movie.title}
           className="w-full h-full object-cover"
         />
@@ -91,7 +91,7 @@ const MovieDetails = () => {
         <div className="absolute bottom-0 left-0 w-full z-20 p-8 md:p-16 flex flex-col md:flex-row gap-8 items-end">
 
           <img
-            src={movie.poster_path}
+            src={getImageUrl(movie.poster_path)}
             alt={movie.title}
             className="w-48 md:w-64 rounded-xl shadow-2xl border-4 border-white/10 hidden md:block"
           />
@@ -170,7 +170,7 @@ const MovieDetails = () => {
                 <div key={index} className="text-center group">
                   <div className="w-full aspect-square rounded-full overflow-hidden mb-3 border-2 border-transparent group-hover:border-orange-500 transition-all">
                     <img
-                      src={cast.profile_path}
+                      src={getImageUrl(cast.profile_path)}
                       alt={cast.name}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
                     />
@@ -212,3 +212,7 @@ const MovieDetails = () => {
 };
 
 export default MovieDetails;
+
+
+
+

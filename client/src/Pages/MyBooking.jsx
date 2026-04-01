@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { dummyBookingData } from '../assets/assets';
-import { formatCurrency, formatDate, formatTime } from '../Lib/utils';
+import { formatCurrency, formatDate, formatTime, getImageUrl } from '../Lib/utils';
 import { IoCalendarOutline, IoTimeOutline, IoTicketOutline, IoCloseCircleOutline, IoAlertCircleOutline } from "react-icons/io5";
 import BlurLoader from '../Components/BlurLoader';
 import { toast } from 'react-hot-toast';
@@ -19,7 +19,7 @@ const MyBooking = () => {
     if (!user) return;
     try {
       // Pass user email or ID to filter
-      const res = await fetch(`http://localhost:5000/api/payment/bookings?email=${user.emailAddresses[0].emailAddress}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payment/bookings?email=${user.emailAddresses[0].emailAddress}`);
       const data = await res.json();
       if (res.ok) {
         setBookings(data);
@@ -55,7 +55,7 @@ const MyBooking = () => {
     setIsCancelling(true); // Start Blur
 
     try {
-      const res = await fetch(`http://localhost:5000/api/payment/cancel-booking/${selectedBookingId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payment/cancel-booking/${selectedBookingId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: cancelReason })
@@ -98,7 +98,7 @@ const MyBooking = () => {
             {/* Movie Image */}
             <div className="w-full md:w-48 h-48 md:h-auto relative">
               <img
-                src={booking.show?.movie?.poster_path || "https://via.placeholder.com/200x300?text=No+Image"}
+                src={getImageUrl(booking.show?.movie?.poster_path)}
                 alt={booking.show?.movie?.title || "Unknown Movie"}
                 className="w-full h-full object-cover"
               />
@@ -205,3 +205,7 @@ const MyBooking = () => {
 };
 
 export default MyBooking;
+
+
+
+

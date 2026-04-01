@@ -35,7 +35,7 @@ const SeatLayout = () => {
   useEffect(() => {
     const fetchShow = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/movies/${id}`)
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies/${id}`)
 
         if (res.ok) {
           const movie = await res.json()
@@ -64,7 +64,7 @@ const SeatLayout = () => {
       if (!selectedTime || !date) return;
       try {
         // Construct a robust URL. Note: Time is like "10:00"
-        const res = await fetch(`http://localhost:5000/api/movies/${id}/shows/${date}/${selectedTime.time}/booked-seats`);
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies/${id}/shows/${date}/${selectedTime.time}/booked-seats`);
         if (res.ok) {
           const seats = await res.json();
           setBookedSeats(seats);
@@ -215,7 +215,7 @@ const SeatLayout = () => {
     try {
       const amount = totalAmount + Math.round(totalAmount * 0.1)
       const { data: order } = await axios.post(
-        'http://localhost:5000/api/payment/create-order',
+        `${import.meta.env.VITE_API_BASE_URL}/api/payment/create-order`,
         { amount }
       )
 
@@ -254,7 +254,7 @@ const SeatLayout = () => {
 
           try {
             const verify = await axios.post(
-              'http://localhost:5000/api/payment/verify-payment',
+              `${import.meta.env.VITE_API_BASE_URL}/api/payment/verify-payment`,
               bookingPayload
             )
             if (verify.data.success) {
@@ -460,3 +460,8 @@ const SeatLayout = () => {
 }
 
 export default SeatLayout
+
+
+
+
+

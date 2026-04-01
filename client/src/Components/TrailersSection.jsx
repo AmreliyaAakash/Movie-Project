@@ -74,3 +74,8 @@ const TrailersSection = () => {
 }
 
 export default TrailersSection
+
+
+
+
+

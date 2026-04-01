@@ -13,7 +13,7 @@ const UsersTab = () => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/admin/users');
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users`);
             setUsers(res.data);
         } catch (error) {
             console.error("Failed to fetch users:", error.response ? error.response.data : error.message);
@@ -26,7 +26,7 @@ const UsersTab = () => {
     const handleDelete = async (userId) => {
         if (!window.confirm("Are you sure you want to delete this user?")) return;
         try {
-            await axios.delete(`http://localhost:5000/api/admin/users/${userId}`);
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/admin/users/${userId}`);
             toast.success("User deleted successfully");
             setUsers(users.filter(user => user.id !== userId));
         } catch (error) {
@@ -126,3 +126,8 @@ const UsersTab = () => {
 };
 
 export default UsersTab;
+
+
+
+
+

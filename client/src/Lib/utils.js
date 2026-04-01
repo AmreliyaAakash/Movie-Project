@@ -48,4 +48,18 @@ export const formatTime = (timeString) => {
     }
 
     return timeString;
+};export const getImageUrl = (path) => {
+    if (!path) return "https://via.placeholder.com/500x750?text=No+Image";
+    
+    // If the path is an absolute localhost URL (from local development db entries)
+    // we replace it with the current API base URL
+    if (path.startsWith('http://localhost:5000')) {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        return path.replace('http://localhost:5000', baseUrl);
+    }
+
+    if (path.startsWith('http')) return path;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 };
+

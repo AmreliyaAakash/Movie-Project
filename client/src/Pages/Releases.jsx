@@ -11,7 +11,7 @@ const Releases = () => {
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/movies');
+                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/movies`);
                 const data = await res.json();
                 if (res.ok) {
                     const upcomingMovies = data.filter(movie => !isReleased(movie.release_date));
@@ -55,3 +55,8 @@ const Releases = () => {
 }
 
 export default Releases
+
+
+
+
+

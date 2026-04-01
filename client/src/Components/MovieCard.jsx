@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import timeFormat from "../Lib/TimeFormate"
+import { getImageUrl } from "../Lib/utils"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -96,7 +97,7 @@ const MovieCard = ({ movie, limitIndex, limitCount }) => {
         >
             <img
                 onClick={() => navigate(`/movies/${movie._id}`)}
-                src={movie.backdrop_path}
+                src={getImageUrl(movie.backdrop_path)}
                 alt={movie.title}
                 className="rounded-lg h-52 w-full object-cover cursor-pointer"
             />
@@ -139,3 +140,8 @@ const MovieCard = ({ movie, limitIndex, limitCount }) => {
 }
 
 export default MovieCard
+
+
+
+
+
